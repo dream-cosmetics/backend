@@ -6,7 +6,8 @@
   "license": "UNLICENSED",
   "author": "",
   "scripts": {
-    "migrate:dev": "dotenv -e .env.development -- npx prisma migrate dev ",
+    "migrate:prod": "dotenv -e .env.production npx prisma migrate prod",
+    "migrate:dev": "dotenv -e .env.development npx prisma migrate dev",
     "prebuild": "rimraf dist",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -73,6 +74,6 @@
     "typescript": "5.4.2"
   },
   "prisma": {
-    "seed": "ts-node prisma/seed.ts"
+    "seed": "dotenv -e .env.development ts-node prisma/seed.ts"
   }
 }

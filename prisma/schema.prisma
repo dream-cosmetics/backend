@@ -4,19 +4,22 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_URL")
+  url       =  env("DATABASE_URL")
 }
 
 model Product {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  title     String
-  content   String?
+  id          Int      @id @default(autoincrement())
+  name        String
+  price       Int
+  weight      Int
+  description String
+  ingridients String
+  category Category @relation(fields: [categoryId], references: [id])
+  categoryId Int
 }
 
-model user {
+model Category {
   id Int @id @default(autoincrement())
-  firstname String
-  lastname String
+  name String @unique
+  products Product[]
 }
