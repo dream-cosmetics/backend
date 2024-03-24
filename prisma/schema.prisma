@@ -8,18 +8,44 @@ datasource db {
 }
 
 model Product {
-  id          Int      @id @default(autoincrement())
-  name        String
-  price       Int
-  weight      Int
-  description String
-  ingridients String
-  category Category @relation(fields: [categoryId], references: [id])
-  categoryId Int
+  id                Int     @id @default(autoincrement())
+  name              String
+  price             Float
+  rating            Int?
+  weight            Int?
+  description       String?
+  features          String?
+  ingridients       String?
+  productFeatures   String?
+  usingFor          String?
+  warning           String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime? @updatedAt
+  category          Category @relation(fields: [categoryId], references: [id])
+  categoryId        Int
 }
 
 model Category {
-  id Int @id @default(autoincrement())
-  name String @unique
-  products Product[]
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime?  @updatedAt
+  products  Product[]
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  firstName String
+  lastName  String
+  email     String    @unique
+  phone     String    @unique
+  password  String
+  role      Role
+  createdAt DateTime  @default(now())
+  updatedAt DateTime?  @updatedAt
+}
+
+enum Role {
+  USER
+  ADMIN
 }
