@@ -8,35 +8,36 @@ import {
   Delete,
   ValidationPipe,
   ParseIntPipe,
-  HttpStatus,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from '@prisma/client';
-import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { FileService } from '../file/file.service';
 
 @Controller('products')
-@ApiTags('products')
 export class ProductController {
-  constructor(private readonly productService: ProductService) {}
+  constructor(
+    private readonly productService: ProductService,
+    private readonly fileService: FileService,
+  ) {}
 
   @Post()
-  @ApiBody({ type: CreateProductDto })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: 'Product created successfully',
-  })
-  @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
-    description: 'Validation error',
-  })
-  @ApiResponse({
-    status: HttpStatus.INTERNAL_SERVER_ERROR,
-    description: 'Internal server error',
-  })
   createProduct(@Body(ValidationPipe) createProductDto: CreateProductDto) {
     return this.productService.createProduct(createProductDto);
+  }
+
+  @Post('image/:id')
+  @UseInterceptors(FileInterceptor('file', { dest: './public/images/product' }))
+  async setProductImage(
+    @UploadedFile() file: Express.Multer.File,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    const imgInfo = await this.fileService.uploadFile(file);
+    return this.productService.updateProduct(id, { img: imgInfo.filename });
   }
 
   @Get()

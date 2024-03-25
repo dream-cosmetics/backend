@@ -1,7 +1,10 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger } from '@nestjs/common';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
+import * as yaml from 'yaml';
+import * as path from 'path';
+import * as fs from 'fs';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -11,15 +14,10 @@ async function bootstrap() {
   const logger = new Logger(AppModule.name);
   const PORT = process.env.PORT || 3000;
 
-  const config = new DocumentBuilder()
-    .setTitle('Handmade beauty store API')
-    .setDescription('Handmade beauty store API description')
-    .setVersion('1.0')
-    .addTag('Handmade beauty store')
-    .build();
-
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
+  const pathYml = path.join(process.cwd(), './docs/openapi.yml');
+  const file = fs.readFileSync(pathYml, 'utf-8');
+  const yamlDocument: OpenAPIObject = yaml.parse(file);
+  SwaggerModule.setup('api/docs', app, yamlDocument);
 
   await app.listen(PORT);
   logger.debug(`Application listening on port ${PORT}`);

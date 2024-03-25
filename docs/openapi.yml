@@ -1,0 +1,247 @@
+openapi: 3.0.0
+info:
+  title: "Handmade beauty store API"
+  description: "Handmade beauty store API description."
+  version: "1.0.0"
+servers:
+  - url: http://localhost:3000/api  # Replace with your actual server URL
+tags:
+  - name: products
+components:
+  schemas:
+    CreateProductDto:
+      type: object
+      required:
+        - name
+        - price
+        - categoryId
+      properties:
+        name:
+          type: string
+          description: Name of the product
+        price:
+          type: number
+          description: Price of the product
+          minimum: 0.01
+        rating:
+          type: number
+          description: Rating of the product (optional)
+          minimum: 1
+          maximum: 5
+        weight:
+          type: number
+          description: Weight of the product (optional)
+          minimum: 0
+        features:
+          type: string
+          description: Features of the product (optional)
+        description:
+          type: string
+          description: Description of the product (optional)
+        usingFor:
+          type: string
+          description: What the product is used for (optional)
+        ingredients:
+          type: string
+          description: Ingredients of the product (optional)
+        productFeatures:
+          type: string
+          description: Product features (optional)
+        warnings:
+          type: string
+          description: Warnings about the product (optional)
+        categoryId:
+          type: integer
+          description: ID of the category the product belongs to
+    UpdateProductDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the product (optional)
+        price:
+          type: number
+          description: Price of the product (optional)
+          minimum: 0.01
+        rating:
+          type: number
+          description: Rating of the product (optional)
+          minimum: 1
+          maximum: 5
+        weight:
+          type: number
+          description: Weight of the product (optional)
+          minimum: 0
+        features:
+          type: string
+          description: Features of the product (optional)
+        description:
+          type: string
+          description: Description of the product (optional)
+        usingFor:
+          type: string
+          description: What the product is used for (optional)
+        ingredients:
+          type: string
+          description: Ingredients of the product (optional)
+        productFeatures:
+          type: string
+          description: Product features (optional)
+        warnings:
+          type: string
+          description: Warnings about the product (optional)
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID of the product
+        name:
+          type: string
+          description: Name of the product
+        price:
+          type: number
+          description: Price of the product
+        rating:
+          type: number
+          description: Rating of the product (optional)
+        weight:
+          type: number
+          description: Weight of the product (optional)
+        features:
+          type: string
+          description: Features of the product (optional)
+        description:
+          type: string
+          description: Description of the product (optional)
+        usingFor:
+          type: string
+          description: What the product is used for (optional)
+        ingredients:
+          type: string
+          description: Ingredients of the product (optional)
+        productFeatures:
+          type: string
+          description: Product features (optional)
+        warnings:
+          type: string
+          description: Warnings about the product (optional)
+        categoryId:
+          type: integer
+          description: ID of the category the product belongs to
+paths:
+  /products:
+    post:
+      summary: Create a new product
+      description: "This endpoint creates a new product in the system."
+      tags: [ products ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProductDto'
+      responses:
+        '201':
+          description: Product created successfully
+          content:
+            text/html:
+              schema:
+                type: string
+                example: "Product with id:1 successfully created !"
+        '400':
+          description: Bad request (validation error)
+        '500':
+          description: Internal server error
+    get:
+      summary: Get all products
+      description: "This endpoint retrieves all products from the system."
+      tags: [ products ]
+      responses:
+        '200':
+          description: Products retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        '500':
+          description: Internal server error
+  /products/{id}: # The curly braces indicate a path parameter
+    get:
+      summary: Get a product by ID
+      description: "This endpoint retrieves a specific product by its ID."
+      tags: [ products ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the product to retrieve
+      responses:
+        '200':
+          description: Product retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Product not found
+        '500':
+          description: Internal server error
+    patch:
+      summary: Update a product
+      description: "This endpoint updates an existing product in the system."
+      tags: [ products ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the product to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProductDto'
+      responses:
+        '200':
+          description: Product updated successfully
+          content:
+            text/html:
+              schema:
+                type: string
+                example: "Product with id:1 successfully updated!"
+
+        '404':
+          description: Product not found
+        '500':
+          description: Internal server error
+    delete:
+      summary: Delete a product
+      description: "This endpoint deletes an existing product in the system."
+      tags: [ products ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the product to delete
+      responses:
+        '200':
+          description: Product delete successfully
+          content:
+            text/html:
+              schema:
+                type: string
+                example: "Product with id:1 successfully deleted!"
+
+        '404':
+          description: Product not found
+        '500':
+          description: Internal server error

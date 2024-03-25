@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsPositive,
+  IsString,
+} from 'class-validator';
 
 export class CreateProductDto {
   @IsNotEmpty()
@@ -47,4 +53,8 @@ export class CreateProductDto {
   @IsNumber()
   @IsPositive()
   categoryId: number;
+
+  @IsOptional()
+  @IsString()
+  img: string;
 }
