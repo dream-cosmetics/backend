@@ -8,33 +8,17 @@ import {
   Delete,
   ValidationPipe,
   ParseIntPipe,
-  HttpStatus,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Product } from '@prisma/client';
-import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @Controller('products')
-@ApiTags('products')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @Post()
-  @ApiBody({ type: CreateProductDto })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: 'Product created successfully',
-  })
-  @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
-    description: 'Validation error',
-  })
-  @ApiResponse({
-    status: HttpStatus.INTERNAL_SERVER_ERROR,
-    description: 'Internal server error',
-  })
   createProduct(@Body(ValidationPipe) createProductDto: CreateProductDto) {
     return this.productService.createProduct(createProductDto);
   }
