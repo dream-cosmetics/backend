@@ -2,30 +2,76 @@ import { Injectable } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from '../prisma.service';
+import { Product } from '@prisma/client';
 
 @Injectable()
 export class ProductService {
   constructor(private prisma: PrismaService) {}
 
-  createProduct(createProductDto: CreateProductDto) {
-    this.prisma.product.create({
-      data: createProductDto,
-    });
+  async createProduct(createProductDto: CreateProductDto): Promise<string> {
+    try {
+      const product: Product = await this.prisma.product.create({
+        data: createProductDto,
+      });
+      return `Product with id:${product.id} successfully created !`;
+    } catch (e) {
+      throw new Error(`Error: creating product failed.Reason:${e}`);
+    }
   }
 
-  getProducts() {
-    return `This action returns all product`;
+  async getProducts(): Promise<Product[]> {
+    try {
+      return await this.prisma.product.findMany();
+    } catch (e) {
+      throw new Error(`Error: getting all products failed. Reason:${e}`);
+    }
   }
 
-  getProductById(id: number) {
-    return `This action returns a #${id} product`;
+  async getProductById(productId: number): Promise<Product> {
+    try {
+      return await this.prisma.product.findUnique({
+        where: {
+          id: productId,
+        },
+      });
+    } catch (e) {
+      throw new Error(
+        `Error: getting product with id:${productId} failed. Reason:${e}`,
+      );
+    }
   }
 
-  updateProduct(id: number, updateProductDto: UpdateProductDto) {
-    return `This action updates a #${id} product`;
+  async updateProduct(
+    productId: number,
+    updateData: UpdateProductDto,
+  ): Promise<string> {
+    try {
+      await this.prisma.product.update({
+        where: {
+          id: productId,
+        },
+        data: updateData,
+      });
+      return `Product with id:${productId} successfully updated!`;
+    } catch (e) {
+      throw new Error(
+        `Error: updating product with id:${productId} failed. Reason:${e}`,
+      );
+    }
   }
 
-  removeProduct(id: number) {
-    return `This action removes a #${id} product`;
+  async removeProduct(productId: number): Promise<string> {
+    try {
+      await this.prisma.product.delete({
+        where: {
+          id: productId,
+        },
+      });
+      return `Product with id:${productId} deleted successfully`;
+    } catch (e) {
+      throw new Error(
+        `Error: deleting product with id:${productId} failed. Reason:${e}`,
+      );
+    }
   }
 }
