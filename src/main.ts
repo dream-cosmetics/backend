@@ -17,10 +17,11 @@ async function bootstrap() {
     .setVersion('1.0')
     .addTag('Handmade beauty store')
     .build();
+
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('swagger', app, document);
+  SwaggerModule.setup('api/docs', app, document);
 
   await app.listen(PORT);
   logger.debug(`Application listening on port ${PORT}`);
 }
-bootstrap();
+bootstrap().then();

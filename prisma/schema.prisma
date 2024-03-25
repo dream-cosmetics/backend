@@ -15,7 +15,7 @@ model Product {
   weight            Int?
   description       String?
   features          String?
-  ingridients       String?
+  ingredients String?
   productFeatures   String?
   usingFor          String?
   warning           String?
