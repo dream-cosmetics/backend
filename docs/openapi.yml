@@ -7,9 +7,26 @@ servers:
   - url: http://localhost:3000/api  # Replace with your actual server URL
 tags:
   - name: products
+  - name: categories
   - name: users
 components:
   schemas:
+    CreateCategoryDto:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Name of Category
+    UpdateCategoryDto:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Name of Category
     CreateProductDto:
       type: object
       required:
@@ -91,6 +108,21 @@ components:
         warnings:
           type: string
           description: Warnings about the product (optional)
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID of the category
+        name:
+          type: string
+          description: name of the category
+        createdAt:
+          type: string
+          description: date of creating
+        updatedAt:
+          type: string
+          description: date of lats updating
     Product:
       type: object
       properties:
@@ -130,6 +162,13 @@ components:
         categoryId:
           type: integer
           description: ID of the category the product belongs to
+        createdAt:
+          type: string
+          description: date of creating
+        updatedAt:
+          type: string
+          description: date of last updating
+
     CreateUserDto:
       type: object
       required:
@@ -192,6 +231,119 @@ components:
           description: User's phone number
 
 paths:
+  /categories:
+    get:
+      summary: Get all categories
+      description: "This endpoint retrieves all categories from the system."
+      tags: [ categories ]
+      responses:
+        200:
+          description: Categories retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+    post:
+      summary: Create a new category
+      description: "This endpoint creates a new category in the system."
+      tags: [ categories ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCategoryDto'
+      responses:
+        '201':
+          description: Category created successfully
+          content:
+            text/html:
+              schema:
+                type: string
+                example: "Category with id:1 successfully created !"
+        '400':
+          description: Bad request (validation error)
+        '500':
+          description: Internal server error
+  /categories/{id}:
+    get:
+      summary: Get a category by ID
+      description: "This endpoint retrieves a specific category by its ID."
+      tags: [ categories ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the category to retrieve
+      responses:
+        '200':
+          description: Category retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '404':
+          description: Category not found
+        '500':
+          description: Internal server error
+    patch:
+      summary: Update a category
+      description: "This endpoint updates an existing category in the system."
+      tags: [ categories ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the category to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCategoryDto'
+      responses:
+        '200':
+          description: Category updated successfully
+          content:
+            text/html:
+              schema:
+                type: string
+                example: "Category with id:1 successfully updated!"
+
+        '404':
+          description: Category not found
+        '500':
+          description: Internal server error
+    delete:
+      summary: Delete a category
+      description: "This endpoint deletes an existing category in the system."
+      tags: [ categories ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the category to delete
+      responses:
+        '200':
+          description: Category delete successfully
+          content:
+            text/html:
+              schema:
+                type: string
+                example: "Category with id:1 successfully deleted!"
+
+        '404':
+          description: Category not found
+        '500':
+          description: Internal server error
   /products:
     post:
       summary: Create a new product

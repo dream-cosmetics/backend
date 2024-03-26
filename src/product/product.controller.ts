@@ -10,13 +10,15 @@ import {
   ParseIntPipe,
   UseInterceptors,
   UploadedFile,
+  Query,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { Product } from '@prisma/client';
+import { Prisma, Product } from '@prisma/client';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileService } from '../file/file.service';
+import { OrderByPipe, WherePipe } from '@nodeteam/nestjs-pipes';
 
 @Controller('products')
 export class ProductController {
@@ -41,8 +43,12 @@ export class ProductController {
   }
 
   @Get()
-  getProducts(): Promise<Product[]> {
-    return this.productService.getProducts();
+  getProducts(
+    @Query('where', WherePipe) where?: Prisma.ProductWhereInput,
+    @Query('orderBy', OrderByPipe)
+    orderBy?: Prisma.ProductOrderByWithRelationInput,
+  ): Promise<Product[]> {
+    return this.productService.getProducts(where, orderBy);
   }
 
   @Get(':id')

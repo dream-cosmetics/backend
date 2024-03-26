@@ -52,6 +52,7 @@
     "@nestjs/platform-express": "10.3.4",
     "@nestjs/serve-static": "^4.0.1",
     "@nestjs/swagger": "^7.3.0",
+    "@nodeteam/nestjs-pipes": "^1.2.5",
     "@prisma/client": "5.11.0",
     "@types/bcryptjs": "^2.4.6",
     "app-root-path": "^3.1.0",

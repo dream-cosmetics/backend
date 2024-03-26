@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from '../prisma.service';
-import { Product } from '@prisma/client';
+import { Prisma, Product } from '@prisma/client';
 
 @Injectable()
 export class ProductService {
@@ -19,9 +19,12 @@ export class ProductService {
     }
   }
 
-  async getProducts(): Promise<Product[]> {
+  async getProducts(
+    where: Prisma.ProductWhereInput,
+    orderBy: Prisma.ProductOrderByWithRelationInput,
+  ): Promise<Product[]> {
     try {
-      return await this.prisma.product.findMany();
+      return await this.prisma.product.findMany({ where, orderBy });
     } catch (e) {
       throw new Error(`Error: getting all products failed. Reason:${e}`);
     }
