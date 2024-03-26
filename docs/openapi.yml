@@ -8,6 +8,7 @@ servers:
 tags:
   - name: products
   - name: categories
+  - name: users
 components:
   schemas:
     CreateCategoryDto:
@@ -167,6 +168,68 @@ components:
         updatedAt:
           type: string
           description: date of last updating
+
+    CreateUserDto:
+      type: object
+      required:
+        - firstName
+        - lastName
+        - email
+        - password
+        - phone
+      properties:
+        firstName:
+          type: string
+          description: First name of the user
+        lastName:
+          type: string
+          description: Last name of the user
+        email:
+          type: string
+          description: User's email
+        password:
+          type: string
+          description: User's password
+        phone:
+          type: string
+          description: User's phone number
+    UpdateUserDto:
+      type: object
+      properties:
+        firstName:
+          type: string
+          description: First name of the user (optional)
+        lastName:
+          type: string
+          description: Last name of the user (optional)
+        email:
+          type: string
+          description: User's email (optional)
+        password:
+          type: string
+          description: User's password (optional)
+        phone:
+          type: string
+          description: User's phone number (optional)
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID of the user
+        firstName:
+          type: string
+          description: First name of the user
+        lastName:
+          type: string
+          description: Last name of the user
+        email:
+          type: string
+          description: User's email
+        phone:
+          type: string
+          description: User's phone number
+
 paths:
   /categories:
     get:
@@ -396,3 +459,114 @@ paths:
           description: Product not found
         '500':
           description: Internal server error
+  /users:
+    post:
+      summary: Create a new user
+      description: "This endpoint creates a new user in the system."
+      tags: [ users ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserDto'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            text/html:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Bad request (validation error)
+        '500':
+          description: Internal server error
+    get:
+      summary: Get all users
+      description: "This endpoint retrieves all users from the system."
+      tags: [ users ]
+      responses:
+        '200':
+          description: Users retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '500':
+          description: Internal server error
+  /users/{id}: # The curly braces indicate a path parameter
+    get:
+      summary: Get a user by ID
+      description: "This endpoint retrieves a specific user by its ID."
+      tags: [ users ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the user to retrieve
+      responses:
+        '200':
+          description: User retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+        '500':
+          description: Internal server error
+    patch:
+      summary: Update a user
+      description: "This endpoint updates an existing user in the system."
+      tags: [ users ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the user to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserDto'
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            text/html:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+        '500':
+          description: Internal server error
+    delete:
+      summary: Delete a user
+      description: "This endpoint deletes an existing user in the system."
+      tags: [ users ]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the user to delete
+      responses:
+        '200':
+          description: User delete successfully
+          content:
+            text/html:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+        '500':
+          description: Internal server error
+    
