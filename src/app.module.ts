@@ -7,6 +7,7 @@ import { ProductModule } from './product/product.module';
 import { FileModule } from './file/file.module';
 import { FileService } from './file/file.service';
 import { CategoryModule } from './category/category.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { CategoryModule } from './category/category.module';
     ProductModule,
     FileModule,
     CategoryModule,
+    UserModule,
   ],
   controllers: [],
   providers: [PrismaService, FileService],
