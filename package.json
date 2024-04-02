@@ -11,7 +11,7 @@
     "prisma:seed": "npx prisma db seed",
     "prisma:format": "npx prisma format",
     "prebuild": "rimraf dist",
-    "postbuild": "npx prisma generate",
+    "postbuild": "npx prisma generate && npx prisma db push && npx prisma db seed",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "node dist/main",
