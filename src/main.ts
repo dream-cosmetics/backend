@@ -17,7 +17,7 @@ async function bootstrap() {
   const pathYml = path.join(process.cwd(), './docs/openapi.yml');
   const file = fs.readFileSync(pathYml, 'utf-8');
   const yamlDocument: OpenAPIObject = yaml.parse(file);
-  SwaggerModule.setup('api/docs', app, yamlDocument);
+  SwaggerModule.setup('swagger', app, yamlDocument);
 
   await app.listen(PORT);
   logger.debug(`Application listening on port ${PORT}`);

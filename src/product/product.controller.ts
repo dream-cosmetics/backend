@@ -18,7 +18,6 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { Prisma, Product } from '@prisma/client';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FileService } from '../file/file.service';
-import { OrderByPipe, WherePipe } from '@nodeteam/nestjs-pipes';
 
 @Controller('products')
 export class ProductController {
@@ -44,8 +43,8 @@ export class ProductController {
 
   @Get()
   getProducts(
-    @Query('where', WherePipe) where?: Prisma.ProductWhereInput,
-    @Query('orderBy', OrderByPipe)
+    @Query('where') where?: Prisma.ProductWhereInput,
+    @Query('orderBy')
     orderBy?: Prisma.ProductOrderByWithRelationInput,
   ): Promise<Product[]> {
     return this.productService.getProducts(where, orderBy);
