@@ -8,12 +8,12 @@ import { Prisma, Product } from '@prisma/client';
 export class ProductService {
   constructor(private prisma: PrismaService) {}
 
-  async createProduct(createProductDto: CreateProductDto): Promise<string> {
+  async createProduct(createProductDto: CreateProductDto): Promise<Product> {
     try {
       const product: Product = await this.prisma.product.create({
         data: createProductDto,
       });
-      return `Product with id:${product.id} successfully created !`;
+      return product;
     } catch (e) {
       throw new Error(`Error: creating product failed.Reason:${e}`);
     }

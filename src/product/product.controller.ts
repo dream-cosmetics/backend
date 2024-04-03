@@ -32,7 +32,7 @@ export class ProductController {
   }
 
   @Post('image/:id')
-  @UseInterceptors(FileInterceptor('file', { dest: './public/images/product' }))
+  @UseInterceptors(FileInterceptor('file', { dest: './public' }))
   async setProductImage(
     @UploadedFile() file: Express.Multer.File,
     @Param('id', ParseIntPipe) id: number,

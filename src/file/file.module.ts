@@ -5,7 +5,7 @@ import { path } from 'app-root-path';
 
 @Module({
   imports: [
-    MulterModule.register({ dest: `${path}/uploads` }), // Configure file storage location
+    MulterModule.register({ dest: `${path}/public` }), // Configure file storage location
   ],
   providers: [FileService],
   exports: [FileService],

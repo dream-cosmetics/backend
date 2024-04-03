@@ -23,7 +23,7 @@ model Product {
   updatedAt       DateTime? @updatedAt
   category        Category  @relation(fields: [categoryId], references: [id])
   categoryId      Int
-  image           String[]
+  images          String[]
 }
 
 model Category {

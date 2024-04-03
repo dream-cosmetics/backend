@@ -4,7 +4,8 @@ info:
   description: "Handmade beauty store API description."
   version: "1.0.0"
 servers:
-  - url: http://localhost:3000/api  # Replace with your actual server URL
+  - url: https://backend-enp2.onrender.com/api  # Replace with your actual server URL
+  - url: http://localhost:3000/api
 tags:
   - name: products
   - name: categories
