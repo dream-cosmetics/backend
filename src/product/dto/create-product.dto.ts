@@ -56,5 +56,18 @@ export class CreateProductDto {
 
   @IsOptional()
   @IsString()
-  img: string;
+  warning?: string;
+
+  @IsOptional()
+  createdAt?: string | Date;
+
+  @IsOptional()
+  updatedAt?: string | Date;
+
+  // @IsOptional()
+  // category: Prisma.CategoryCreateNestedOneWithoutProductsInput;
+
+  @IsOptional()
+  @IsString()
+  images: string[];
 }

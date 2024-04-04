@@ -20,11 +20,17 @@ export class ProductService {
   }
 
   async getProducts(
-    where: Prisma.ProductWhereInput,
-    orderBy: Prisma.ProductOrderByWithRelationInput,
+    order: Prisma.SortOrderInput | Prisma.SortOrder,
   ): Promise<Product[]> {
     try {
-      return await this.prisma.product.findMany({ where, orderBy });
+      return await this.prisma.product.findMany({
+        orderBy: {
+          createdAt: order,
+        },
+        include: {
+          category: true,
+        },
+      });
     } catch (e) {
       throw new Error(`Error: getting all products failed. Reason:${e}`);
     }
@@ -44,18 +50,15 @@ export class ProductService {
     }
   }
 
-  async updateProduct(
-    productId: number,
-    updateData: UpdateProductDto,
-  ): Promise<string> {
+  async updateProduct(productId: number, updateData: UpdateProductDto) {
     try {
-      await this.prisma.product.update({
+      const updatedProduct = await this.prisma.product.update({
         where: {
           id: productId,
         },
         data: updateData,
       });
-      return `Product with id:${productId} successfully updated!`;
+      return updatedProduct;
     } catch (e) {
       throw new Error(
         `Error: updating product with id:${productId} failed. Reason:${e}`,
