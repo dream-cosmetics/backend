@@ -5,7 +5,6 @@ const prisma = new PrismaClient();
 async function main() {
   const salt = await genSalt();
   const hashedPassword = await hash('12345', salt);
-  const existingCategories = await prisma.category.count();
 
   try {
     await prisma.user.upsert({
@@ -21,6 +20,7 @@ async function main() {
       },
     });
 
+    const existingCategories = await prisma.category.count();
     if (existingCategories === 0) {
       await prisma.category.createMany({
         data: [

@@ -6,18 +6,16 @@ import {
   Patch,
   Param,
   Delete,
-  ValidationPipe,
-  ParseIntPipe,
-  UseInterceptors,
-  UploadedFile,
   Query,
+  UploadedFiles,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Prisma, Product } from '@prisma/client';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { FileService } from '../file/file.service';
+import { FileImageDecorator } from 'src/shared/decorators/file.decorator';
+import { OrderQueryDto } from './dto/order-query.dto';
 
 @Controller('products')
 export class ProductController {
@@ -27,44 +25,41 @@ export class ProductController {
   ) {}
 
   @Post()
-  createProduct(@Body(ValidationPipe) createProductDto: CreateProductDto) {
+  createProduct(@Body() createProductDto: CreateProductDto) {
     return this.productService.createProduct(createProductDto);
   }
 
   @Post('image/:id')
-  @UseInterceptors(FileInterceptor('file', { dest: './public/images/product' }))
+  @FileImageDecorator('images', 2, 10)
   async setProductImage(
-    @UploadedFile() file: Express.Multer.File,
-    @Param('id', ParseIntPipe) id: number,
+    @UploadedFiles() images: Array<Express.Multer.File>,
+    @Param('id') id: number,
   ) {
-    const imgInfo = await this.fileService.uploadFile(file);
-    return this.productService.updateProduct(id, { img: imgInfo.filename });
+    const fileNames = await this.fileService.uploadFile(images);
+
+    return this.productService.updateProduct(id, { images: fileNames });
   }
 
   @Get()
-  getProducts(
-    @Query('where') where?: Prisma.ProductWhereInput,
-    @Query('orderBy')
-    orderBy?: Prisma.ProductOrderByWithRelationInput,
-  ): Promise<Product[]> {
-    return this.productService.getProducts(where, orderBy);
+  getProducts(@Query('order') order?: OrderQueryDto): Promise<Product[]> {
+    return this.productService.getProducts(order as Prisma.SortOrderInput);
   }
 
   @Get(':id')
-  getProductById(@Param('id', ParseIntPipe) id: number): Promise<Product> {
+  getProductById(@Param('id') id: number): Promise<Product> {
     return this.productService.getProductById(+id);
   }
 
   @Patch(':id')
   updateProduct(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id') id: number,
     @Body() updateProductDto: UpdateProductDto,
   ) {
     return this.productService.updateProduct(+id, updateProductDto);
   }
 
   @Delete(':id')
-  removeProduct(@Param('id', ParseIntPipe) id: number) {
+  removeProduct(@Param('id') id: number) {
     return this.productService.removeProduct(+id);
   }
 }
