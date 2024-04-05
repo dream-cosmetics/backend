@@ -16,10 +16,14 @@ export class ProductService {
     private fileService: FileService,
   ) {}
 
-  async createProduct(createProductDto: CreateProductDto): Promise<Product> {
+  async createProduct(
+    createProductDto: CreateProductDto,
+    images: Express.Multer.File[],
+  ): Promise<Product> {
     try {
+      const imageNames = await this.fileService.uploadFiles(images);
       const product: Product = await this.prisma.product.create({
-        data: createProductDto,
+        data: { ...createProductDto, images: imageNames },
       });
       return product;
     } catch (e) {
@@ -61,22 +65,38 @@ export class ProductService {
       if (!product) {
         throw new NotFoundException('Product not found');
       }
-      return {
-        ...product,
-        images: this.fileService.getImageUrls(product.images),
-      };
+      return product;
     } catch (e) {
       throw new BadRequestException('Product not found');
     }
   }
 
-  async updateProduct(productId: number, updateData: UpdateProductDto) {
+  async findOne(productId: number): Promise<Product> {
+    const product = await this.getProductByIdOr404(productId);
+    return {
+      ...product,
+      images: this.fileService.getImageUrls(product.images),
+    };
+  }
+
+  async updateProduct(
+    productId: number,
+    updateData: UpdateProductDto,
+    images: Express.Multer.File[],
+  ) {
     try {
+      const product = await this.getProductByIdOr404(productId);
+      const fileNames = await this.fileService.uploadFiles(images);
       const updatedProduct = await this.prisma.product.update({
         where: {
-          id: productId,
+          id: product.id,
         },
-        data: updateData,
+        data: {
+          ...updateData,
+          images: {
+            push: fileNames,
+          },
+        },
       });
       return updatedProduct;
     } catch (e) {
@@ -86,14 +106,32 @@ export class ProductService {
 
   async removeProduct(productId: number): Promise<string> {
     try {
+      const productToRemove = await this.getProductByIdOr404(productId);
       await this.prisma.product.delete({
         where: {
-          id: productId,
+          id: productToRemove.id,
         },
       });
+      await this.fileService.removeFiles(productToRemove.images);
+
       return `Product with id:${productId} deleted successfully`;
     } catch (e) {
       throw new NotFoundException('Product not found', e);
     }
+  }
+
+  async removeImage(productId: number, imageName: string) {
+    const product = await this.getProductByIdOr404(productId);
+    const updatedProduct = await this.prisma.product.update({
+      where: {
+        id: product.id,
+      },
+      data: {
+        images: {
+          set: product.images.filter((img) => img !== imageName),
+        },
+      },
+    });
+    return updatedProduct;
   }
 }

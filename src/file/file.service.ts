@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { saveFiles } from 'src/shared/utils/file.utils';
+import { saveFiles, deleteFiles } from 'src/shared/utils/file.utils';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 
@@ -7,9 +7,14 @@ import { Request } from 'express';
 export class FileService {
   constructor(@Inject(REQUEST) private readonly request: Request) {}
 
-  async uploadFile(files: Array<Express.Multer.File>) {
+  async uploadFiles(files: Array<Express.Multer.File>) {
     if (!files) return;
     return saveFiles(files);
+  }
+
+  async removeFiles(fileNames: string[]) {
+    if (!fileNames) return;
+    return deleteFiles(fileNames);
   }
 
   getImageUrl(imageUrl: string) {

@@ -24,20 +24,32 @@ export class ProductController {
     private readonly fileService: FileService,
   ) {}
 
+  @FileImageDecorator('images', 3, 5)
   @Post()
-  createProduct(@Body() createProductDto: CreateProductDto) {
-    return this.productService.createProduct(createProductDto);
+  createProduct(
+    @Body() createProductDto: CreateProductDto,
+    @UploadedFiles() images: Array<Express.Multer.File>,
+  ) {
+    return this.productService.createProduct(createProductDto, images);
   }
 
-  @Post('image/:id')
-  @FileImageDecorator('images', 2, 10)
-  async setProductImage(
-    @UploadedFiles() images: Array<Express.Multer.File>,
-    @Param('id') id: number,
-  ) {
-    const fileNames = await this.fileService.uploadFile(images);
+  // @Post('image/:id')
+  // @FileImageDecorator('images', 2, 10)
+  // async setProductImage(
+  //   @UploadedFiles() images: Array<Express.Multer.File>,
+  //   @Param('id') id: number,
+  // ) {
+  //   const fileNames = await this.fileService.uploadFiles(images);
 
-    return this.productService.updateProduct(id, { images: fileNames });
+  //   return this.productService.updateProduct(id, { images: fileNames });
+  // }
+
+  @Delete('image/:id')
+  async deleteImage(
+    @Param('id') id: number,
+    @Body('imageName') imageName: string,
+  ) {
+    return this.productService.removeImage(id, imageName);
   }
 
   @Get()
@@ -47,15 +59,17 @@ export class ProductController {
 
   @Get(':id')
   getProductById(@Param('id') id: number): Promise<Product> {
-    return this.productService.getProductByIdOr404(+id);
+    return this.productService.findOne(+id);
   }
 
+  @FileImageDecorator('images', 3, 5)
   @Patch(':id')
   updateProduct(
     @Param('id') id: number,
     @Body() updateProductDto: UpdateProductDto,
+    @UploadedFiles() images: Array<Express.Multer.File>,
   ) {
-    return this.productService.updateProduct(+id, updateProductDto);
+    return this.productService.updateProduct(+id, updateProductDto, images);
   }
 
   @Delete(':id')
