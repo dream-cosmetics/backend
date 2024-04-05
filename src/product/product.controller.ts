@@ -13,16 +13,12 @@ import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Prisma, Product } from '@prisma/client';
-import { FileService } from '../file/file.service';
 import { FileImageDecorator } from 'src/shared/decorators/file.decorator';
 import { OrderQueryDto } from './dto/order-query.dto';
 
 @Controller('products')
 export class ProductController {
-  constructor(
-    private readonly productService: ProductService,
-    private readonly fileService: FileService,
-  ) {}
+  constructor(private readonly productService: ProductService) {}
 
   @FileImageDecorator('images', 3, 5)
   @Post()
