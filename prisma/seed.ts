@@ -1,5 +1,6 @@
 import { PrismaClient, $Enums } from '@prisma/client';
 import { genSalt, hash } from 'bcryptjs';
+import { categoriesData } from './categories.seed';
 const prisma = new PrismaClient();
 
 async function main() {
@@ -23,20 +24,7 @@ async function main() {
     const existingCategories = await prisma.category.count();
     if (existingCategories === 0) {
       await prisma.category.createMany({
-        data: [
-          {
-            name: 'Bathing & Hygiene',
-          },
-          {
-            name: 'Skin Care',
-          },
-          {
-            name: 'Health Care',
-          },
-          {
-            name: 'Beauty Products',
-          },
-        ],
+        data: categoriesData,
       });
     }
   } catch (error) {

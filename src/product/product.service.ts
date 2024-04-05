@@ -1,12 +1,20 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from '../prisma.service';
 import { Prisma, Product } from '@prisma/client';
+import { FileService } from 'src/file/file.service';
 
 @Injectable()
 export class ProductService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private fileService: FileService,
+  ) {}
 
   async createProduct(createProductDto: CreateProductDto): Promise<Product> {
     try {
@@ -23,7 +31,7 @@ export class ProductService {
     order: Prisma.SortOrderInput | Prisma.SortOrder,
   ): Promise<Product[]> {
     try {
-      return await this.prisma.product.findMany({
+      const products = await this.prisma.product.findMany({
         orderBy: {
           createdAt: order,
         },
@@ -31,22 +39,34 @@ export class ProductService {
           category: true,
         },
       });
+
+      return products.map((product) => {
+        return {
+          ...product,
+          images: this.fileService.getImageUrls(product.images),
+        };
+      });
     } catch (e) {
       throw new Error(`Error: getting all products failed. Reason:${e}`);
     }
   }
 
-  async getProductById(productId: number): Promise<Product> {
+  async getProductByIdOr404(productId: number): Promise<Product> {
     try {
-      return await this.prisma.product.findUnique({
+      const product = await this.prisma.product.findUnique({
         where: {
           id: productId,
         },
       });
+      if (!product) {
+        throw new NotFoundException('Product not found');
+      }
+      return {
+        ...product,
+        images: this.fileService.getImageUrls(product.images),
+      };
     } catch (e) {
-      throw new Error(
-        `Error: getting product with id:${productId} failed. Reason:${e}`,
-      );
+      throw new BadRequestException('Product not found');
     }
   }
 
@@ -60,9 +80,7 @@ export class ProductService {
       });
       return updatedProduct;
     } catch (e) {
-      throw new Error(
-        `Error: updating product with id:${productId} failed. Reason:${e}`,
-      );
+      throw new BadRequestException('Product not found', e);
     }
   }
 
@@ -75,9 +93,7 @@ export class ProductService {
       });
       return `Product with id:${productId} deleted successfully`;
     } catch (e) {
-      throw new Error(
-        `Error: deleting product with id:${productId} failed. Reason:${e}`,
-      );
+      throw new NotFoundException('Product not found', e);
     }
   }
 }

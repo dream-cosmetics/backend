@@ -47,7 +47,7 @@ export class ProductController {
 
   @Get(':id')
   getProductById(@Param('id') id: number): Promise<Product> {
-    return this.productService.getProductById(+id);
+    return this.productService.getProductByIdOr404(+id);
   }
 
   @Patch(':id')
