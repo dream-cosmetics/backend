@@ -54,6 +54,18 @@ export class ProductController {
     required: false,
     description: 'Order of the products by creation date, default = desc',
   })
+  @ApiQuery({
+    name: 'limit',
+    type: Number,
+    required: false,
+    description: 'Limit of products per page, default = 3',
+  })
+  @ApiQuery({
+    name: 'page',
+    type: Number,
+    required: false,
+    description: 'Page number, default = 1',
+  })
   @ApiResponse({
     status: 200,
     description: 'List of products',

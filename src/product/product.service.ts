@@ -35,6 +35,8 @@ export class ProductService {
     const count = await this.prisma.product.count();
     const skip = (page - 1) * limit;
 
+    console.log(order, limit, page);
+
     const products = await this.prisma.product.findMany({
       orderBy: {
         createdAt: order,
@@ -42,8 +44,8 @@ export class ProductService {
       include: {
         category: true,
       },
-      take: limit || 3,
-      skip: skip || 0,
+      take: Math.max(limit, 3) || 3,
+      skip: Math.max(skip, 0) || 0,
     });
 
     return products.map((product) => {
@@ -51,7 +53,7 @@ export class ProductService {
         ...product,
         images: this.fileService.getImageUrls(product.images),
         count,
-        page: page || 1,
+        page: Math.max(page, 1) || 1,
         pages: Math.ceil(count / limit) || 1,
       };
     });
