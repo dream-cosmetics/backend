@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsNotEmpty,
   IsNumber,
@@ -7,53 +8,100 @@ import {
 } from 'class-validator';
 
 export class CreateProductDto {
+  @ApiProperty({
+    example: 'Shampoo',
+    description: 'Name of the product',
+    required: true,
+  })
   @IsNotEmpty()
   @IsString()
   name: string;
 
+  @ApiProperty({
+    example: '200',
+    description: 'Price of the product',
+    required: true,
+  })
   @IsNumber()
   @IsPositive()
   price: number;
 
+  @ApiProperty({
+    example: '5',
+    description: 'Rating of the product',
+    required: false,
+  })
   @IsNumber()
   @IsPositive()
   @IsOptional()
-  rating: number;
+  rating?: number;
 
+  @ApiProperty({
+    example: '100',
+    description: 'Weight of the product',
+    required: false,
+  })
   @IsNumber()
   @IsPositive()
   @IsOptional()
-  weight: number;
+  weight?: number;
 
+  @ApiProperty({
+    example: 'Shampoo for long hair',
+    description: 'Features of the product',
+    required: false,
+  })
   @IsString()
   @IsOptional()
-  features: string;
+  features?: string;
 
+  @ApiProperty({
+    example: 'Natural shampoo',
+    description: 'Description',
+    required: false,
+  })
   @IsString()
   @IsOptional()
-  description: string;
+  description?: string;
 
+  @ApiProperty({
+    example: 'Hair',
+    description: 'What the product is used for',
+    required: false,
+  })
   @IsString()
   @IsOptional()
-  usingFor: string;
+  usingFor?: string;
 
+  @ApiProperty({
+    example: 'Shampoo, conditioner',
+    description: 'Ingredients',
+    required: false,
+  })
   @IsString()
   @IsOptional()
-  ingredients: string;
+  ingredients?: string;
 
+  @ApiProperty({
+    example: 'For long hair',
+    description: 'Product features',
+    required: false,
+  })
   @IsString()
   @IsOptional()
-  productFeatures: string;
+  productFeatures?: string;
 
-  @IsString()
-  @IsOptional()
-  warnings: string;
-
+  @ApiProperty({ example: '1', description: 'Category id', required: true })
   @IsNotEmpty()
   @IsNumber()
   @IsPositive()
   categoryId: number;
 
+  @ApiProperty({
+    example: 'Not for children',
+    description: 'Product warnings',
+    required: false,
+  })
   @IsOptional()
   @IsString()
   warning?: string;
@@ -67,6 +115,17 @@ export class CreateProductDto {
   // @IsOptional()
   // category: Prisma.CategoryCreateNestedOneWithoutProductsInput;
 
+  @ApiProperty({
+    type: 'array',
+    items: {
+      type: 'file',
+      items: {
+        type: 'string',
+        format: 'binary',
+        description: 'Images of the product',
+      },
+    },
+  })
   @IsOptional()
   @IsString()
   images: string[];

@@ -1,13 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class CreateCategoryDto {
+export class DeleteImageDto {
   @ApiProperty({
-    example: 'Beauty',
-    description: 'Name of the category',
+    example: 'image.png',
+    description: 'Name of the image',
     required: true,
   })
   @IsNotEmpty()
   @IsString()
-  name: string;
+  fileName: string;
 }

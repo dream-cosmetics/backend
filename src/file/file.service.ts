@@ -1,5 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { saveFiles, deleteFiles } from 'src/shared/utils/file.utils';
+import {
+  saveFiles,
+  deleteFiles,
+  deleteFile,
+} from 'src/shared/utils/file.utils';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 
@@ -15,6 +19,11 @@ export class FileService {
   async removeFiles(fileNames: string[]) {
     if (!fileNames) return;
     return deleteFiles(fileNames);
+  }
+
+  async removeFile(fileName: string) {
+    if (!fileName) return;
+    return deleteFile(fileName);
   }
 
   getImageUrl(imageUrl: string) {

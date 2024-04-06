@@ -1,6 +1,7 @@
 import { PrismaClient, $Enums } from '@prisma/client';
 import { genSalt, hash } from 'bcryptjs';
 import { categoriesData } from './categories.seed';
+import { productsData } from './products.seed';
 const prisma = new PrismaClient();
 
 async function main() {
@@ -25,6 +26,13 @@ async function main() {
     if (existingCategories === 0) {
       await prisma.category.createMany({
         data: categoriesData,
+      });
+    }
+
+    const existingProducts = await prisma.product.count();
+    if (existingProducts === 0) {
+      await prisma.product.createMany({
+        data: productsData,
       });
     }
   } catch (error) {
