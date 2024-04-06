@@ -14,13 +14,31 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { Prisma, Product } from '@prisma/client';
 import { FileImageDecorator } from 'src/shared/decorators/file.decorator';
-import { OrderQueryDto } from './dto/order-query.dto';
 
+import {
+  ApiBody,
+  ApiConsumes,
+  ApiParam,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { DeleteImageDto } from './dto/delete-image.dto';
+
+@ApiTags('Products')
 @Controller('products')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
-  @FileImageDecorator('images', 3, 5)
+  @ApiBody({
+    type: CreateProductDto,
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiResponse({
+    status: 201,
+    description: 'Product created successfully',
+  })
+  @FileImageDecorator('images', 3, 10)
   @Post()
   createProduct(
     @Body() createProductDto: CreateProductDto,
@@ -29,35 +47,55 @@ export class ProductController {
     return this.productService.createProduct(createProductDto, images);
   }
 
-  // @Post('image/:id')
-  // @FileImageDecorator('images', 2, 10)
-  // async setProductImage(
-  //   @UploadedFiles() images: Array<Express.Multer.File>,
-  //   @Param('id') id: number,
-  // ) {
-  //   const fileNames = await this.fileService.uploadFiles(images);
-
-  //   return this.productService.updateProduct(id, { images: fileNames });
-  // }
-
-  @Delete('image/:id')
-  async deleteImage(
-    @Param('id') id: number,
-    @Body('imageName') imageName: string,
-  ) {
-    return this.productService.removeImage(id, imageName);
-  }
-
+  @ApiQuery({
+    name: 'order',
+    type: String,
+    enum: ['asc', 'desc'],
+    required: false,
+    description: 'Order of the products by creation date, default = desc',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'List of products',
+  })
   @Get()
-  getProducts(@Query('order') order?: OrderQueryDto): Promise<Product[]> {
-    return this.productService.getProducts(order as Prisma.SortOrderInput);
+  getProducts(
+    @Query('limit') limit?: number,
+    @Query('page') page?: number,
+    @Query('order') order?: 'asc' | 'desc',
+  ) {
+    return this.productService.getProducts(order, limit, page);
   }
 
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    required: true,
+    description: 'Id of the product',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Single product',
+  })
   @Get(':id')
   getProductById(@Param('id') id: number): Promise<Product> {
     return this.productService.findOne(+id);
   }
 
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    required: true,
+    description: 'Id of the product',
+  })
+  @ApiBody({
+    type: CreateProductDto,
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiResponse({
+    status: 201,
+    description: 'Product updated successfully',
+  })
   @FileImageDecorator('images', 3, 5)
   @Patch(':id')
   updateProduct(
@@ -68,8 +106,41 @@ export class ProductController {
     return this.productService.updateProduct(+id, updateProductDto, images);
   }
 
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    required: true,
+    description: 'Id of the product',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Product deleted successfully',
+  })
   @Delete(':id')
   removeProduct(@Param('id') id: number) {
     return this.productService.removeProduct(+id);
+  }
+
+  @ApiParam({
+    name: 'id',
+    type: Number,
+    required: true,
+    description: 'Id of the product',
+  })
+  @ApiBody({
+    type: DeleteImageDto,
+    required: true,
+    description: 'Image name',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Image deleted successfully',
+  })
+  @Delete('image/:id')
+  async deleteImage(
+    @Param('id') id: number,
+    @Body('imageName') imageName: string,
+  ) {
+    return this.productService.removeImage(id, imageName);
   }
 }

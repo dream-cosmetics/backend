@@ -31,28 +31,30 @@ export class ProductService {
     }
   }
 
-  async getProducts(
-    order: Prisma.SortOrderInput | Prisma.SortOrder,
-  ): Promise<Product[]> {
-    try {
-      const products = await this.prisma.product.findMany({
-        orderBy: {
-          createdAt: order,
-        },
-        include: {
-          category: true,
-        },
-      });
+  async getProducts(order: 'asc' | 'desc' = 'desc', limit = 3, page = 1) {
+    const count = await this.prisma.product.count();
+    const skip = (page - 1) * limit;
 
-      return products.map((product) => {
-        return {
-          ...product,
-          images: this.fileService.getImageUrls(product.images),
-        };
-      });
-    } catch (e) {
-      throw new Error(`Error: getting all products failed. Reason:${e}`);
-    }
+    const products = await this.prisma.product.findMany({
+      orderBy: {
+        createdAt: order,
+      },
+      include: {
+        category: true,
+      },
+      take: limit || 3,
+      skip: skip || 0,
+    });
+
+    return products.map((product) => {
+      return {
+        ...product,
+        images: this.fileService.getImageUrls(product.images),
+        count,
+        page: page || 1,
+        pages: Math.ceil(count / limit) || 1,
+      };
+    });
   }
 
   async getProductByIdOr404(productId: number): Promise<Product> {
@@ -122,6 +124,7 @@ export class ProductService {
 
   async removeImage(productId: number, imageName: string) {
     const product = await this.getProductByIdOr404(productId);
+    await this.fileService.removeFile(imageName);
     const updatedProduct = await this.prisma.product.update({
       where: {
         id: product.id,
