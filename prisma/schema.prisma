@@ -24,6 +24,7 @@ model Product {
   category        Category  @relation(fields: [categoryId], references: [id])
   categoryId      Int
   images          String[]
+  imageUrls       String[]
 }
 
 model Category {

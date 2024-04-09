@@ -1,4 +1,5 @@
 import { Prisma } from '@prisma/client';
+import { uid } from 'uid';
 
 export const productsData: Prisma.ProductCreateManyInput[] = [
   {
@@ -13,7 +14,8 @@ export const productsData: Prisma.ProductCreateManyInput[] = [
     warning: 'No chemicals',
     description: 'Good soap',
     categoryId: 1,
-    images: [
+    images: [uid(), uid()],
+    imageUrls: [
       'https://images.unsplash.com/photo-1600857544200-b2f666a9a2ec?q=80&w=3870&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
       'https://images.unsplash.com/photo-1584305574647-0cc949a2bb9f?q=80&w=3870&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     ],
@@ -30,7 +32,8 @@ export const productsData: Prisma.ProductCreateManyInput[] = [
     warning: 'No chemicals',
     description: 'Good shampoo',
     categoryId: 2,
-    images: [
+    images: [uid(), uid()],
+    imageUrls: [
       'https://images.unsplash.com/photo-1631390179406-0bfe17e9f89d?q=80&w=3792&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
       'https://images.unsplash.com/photo-1631729371254-42c2892f0e6e?q=80&w=3870&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     ],
@@ -47,7 +50,8 @@ export const productsData: Prisma.ProductCreateManyInput[] = [
     usingFor: 'For hair',
     productFeatures: 'Good conditioner for hair',
     warning: 'No chemicals',
-    images: [
+    images: [uid(), uid()],
+    imageUrls: [
       'https://images.unsplash.com/photo-1631729371254-42c2892f0e6e?q=80&w=3870&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
       'https://images.unsplash.com/photo-1635870224262-4d340f2f82d1?q=80&w=3870&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     ],
@@ -64,7 +68,8 @@ export const productsData: Prisma.ProductCreateManyInput[] = [
     warning: 'No chemicals',
     description: 'Good body wash',
     categoryId: 4,
-    images: [
+    images: [uid(), uid()],
+    imageUrls: [
       'https://images.unsplash.com/photo-1538724521430-54d1488cca27?q=80&w=3456&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
       'https://images.unsplash.com/photo-1587023705112-34a9b4fe8317?q=80&w=3456&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     ],

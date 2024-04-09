@@ -6,7 +6,7 @@ import {
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from '../prisma.service';
-import { Prisma, Product } from '@prisma/client';
+import { Product } from '@prisma/client';
 import { FileService } from 'src/file/file.service';
 
 @Injectable()
@@ -21,9 +21,10 @@ export class ProductService {
     images: Express.Multer.File[],
   ): Promise<Product> {
     try {
-      const imageNames = await this.fileService.uploadFiles(images);
+      const { imageNames, imageUrls } =
+        await this.fileService.uploadFiles(images);
       const product: Product = await this.prisma.product.create({
-        data: { ...createProductDto, images: imageNames },
+        data: { ...createProductDto, images: imageNames, imageUrls: imageUrls },
       });
       return product;
     } catch (e) {
@@ -31,11 +32,9 @@ export class ProductService {
     }
   }
 
-  async getProducts(order: 'asc' | 'desc' = 'desc', limit = 3, page = 1) {
+  async getProducts(order: 'asc' | 'desc' = 'desc', limit = 10, page = 1) {
     const count = await this.prisma.product.count();
     const skip = (page - 1) * limit;
-
-    console.log(order, limit, page);
 
     const products = await this.prisma.product.findMany({
       orderBy: {
@@ -44,19 +43,16 @@ export class ProductService {
       include: {
         category: true,
       },
-      take: Math.max(limit, 3) || 3,
-      skip: Math.max(skip, 0) || 0,
+      take: limit || undefined,
+      skip: skip || undefined,
     });
 
-    return products.map((product) => {
-      return {
-        ...product,
-        images: this.fileService.getImageUrls(product.images),
-        count,
-        page: Math.max(page, 1) || 1,
-        pages: Math.ceil(count / limit) || 1,
-      };
-    });
+    return {
+      products,
+      count,
+      page: Math.max(page, 1) || 1,
+      pages: Math.ceil(count / limit) || 1,
+    };
   }
 
   async getProductByIdOr404(productId: number): Promise<Product> {
@@ -79,7 +75,6 @@ export class ProductService {
     const product = await this.getProductByIdOr404(productId);
     return {
       ...product,
-      images: this.fileService.getImageUrls(product.images),
     };
   }
 
@@ -90,7 +85,9 @@ export class ProductService {
   ) {
     try {
       const product = await this.getProductByIdOr404(productId);
-      const fileNames = await this.fileService.uploadFiles(images);
+      const { imageNames, imageUrls } =
+        await this.fileService.uploadFiles(images);
+
       const updatedProduct = await this.prisma.product.update({
         where: {
           id: product.id,
@@ -98,7 +95,10 @@ export class ProductService {
         data: {
           ...updateData,
           images: {
-            push: fileNames,
+            push: imageNames,
+          },
+          imageUrls: {
+            push: imageUrls,
           },
         },
       });
@@ -126,14 +126,17 @@ export class ProductService {
 
   async removeImage(productId: number, imageName: string) {
     const product = await this.getProductByIdOr404(productId);
-    await this.fileService.removeFile(imageName);
+    const { fileName, imageUrl } = await this.fileService.removeFile(imageName);
     const updatedProduct = await this.prisma.product.update({
       where: {
         id: product.id,
       },
       data: {
         images: {
-          set: product.images.filter((img) => img !== imageName),
+          set: product.images.filter((img) => img !== fileName),
+        },
+        imageUrls: {
+          set: product.imageUrls.filter((img) => img !== imageUrl),
         },
       },
     });
