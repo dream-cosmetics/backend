@@ -13,7 +13,9 @@ export class FileService {
 
   async uploadFiles(files: Array<Express.Multer.File>) {
     if (!files) return;
-    return saveFiles(files);
+    const imageNames = await saveFiles(files);
+    const imageUrls = this.getImageUrls(imageNames);
+    return { imageNames, imageUrls };
   }
 
   async removeFiles(fileNames: string[]) {
@@ -23,7 +25,9 @@ export class FileService {
 
   async removeFile(fileName: string) {
     if (!fileName) return;
-    return deleteFile(fileName);
+    const imageUrl = this.getImageUrl(fileName);
+    await deleteFile(fileName);
+    return { fileName, imageUrl };
   }
 
   getImageUrl(imageUrl: string) {
