@@ -1,4 +1,4 @@
-import { ApiParam, ApiProperty } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { $Enums, Prisma } from '@prisma/client';
 import {
   IsEmail,

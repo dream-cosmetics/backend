@@ -12,7 +12,7 @@ import {
 import { ProductService } from './product.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { Prisma, Product } from '@prisma/client';
+import { Product } from '@prisma/client';
 import { FileImageDecorator } from 'src/shared/decorators/file.decorator';
 
 import {
@@ -38,7 +38,7 @@ export class ProductController {
     status: 201,
     description: 'Product created successfully',
   })
-  @FileImageDecorator('images', 3, 10)
+  @FileImageDecorator('images', 3, 2)
   @Post()
   createProduct(
     @Body() createProductDto: CreateProductDto,

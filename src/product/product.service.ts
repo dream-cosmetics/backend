@@ -7,13 +7,13 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from '../prisma.service';
 import { Product } from '@prisma/client';
-import { FileService } from 'src/file/file.service';
+import { ImagekitService } from 'src/imagekit/imagekit.service';
 
 @Injectable()
 export class ProductService {
   constructor(
     private prisma: PrismaService,
-    private fileService: FileService,
+    private imagekitService: ImagekitService,
   ) {}
 
   async createProduct(
@@ -21,10 +21,9 @@ export class ProductService {
     images: Express.Multer.File[],
   ): Promise<Product> {
     try {
-      const { imageNames, imageUrls } =
-        await this.fileService.uploadFiles(images);
+      const { fileIds, urls } = await this.imagekitService.uploadFiles(images);
       const product: Product = await this.prisma.product.create({
-        data: { ...createProductDto, images: imageNames, imageUrls: imageUrls },
+        data: { ...createProductDto, images: fileIds, imageUrls: urls },
       });
       return product;
     } catch (e) {
@@ -85,8 +84,8 @@ export class ProductService {
   ) {
     try {
       const product = await this.getProductByIdOr404(productId);
-      const { imageNames, imageUrls } =
-        await this.fileService.uploadFiles(images);
+
+      const { fileIds, urls } = await this.imagekitService.uploadFiles(images);
 
       const updatedProduct = await this.prisma.product.update({
         where: {
@@ -95,10 +94,10 @@ export class ProductService {
         data: {
           ...updateData,
           images: {
-            push: imageNames,
+            push: fileIds,
           },
           imageUrls: {
-            push: imageUrls,
+            push: urls,
           },
         },
       });
@@ -116,7 +115,8 @@ export class ProductService {
           id: productToRemove.id,
         },
       });
-      await this.fileService.removeFiles(productToRemove.images);
+
+      await this.imagekitService.deleteFiles(productToRemove.images);
 
       return `Product with id:${productId} deleted successfully`;
     } catch (e) {
@@ -126,17 +126,19 @@ export class ProductService {
 
   async removeImage(productId: number, imageName: string) {
     const product = await this.getProductByIdOr404(productId);
-    const { fileName, imageUrl } = await this.fileService.removeFile(imageName);
+    const { fileId, url } = await this.imagekitService.getFile(imageName);
+    await this.imagekitService.deleteFile(imageName);
+
     const updatedProduct = await this.prisma.product.update({
       where: {
         id: product.id,
       },
       data: {
         images: {
-          set: product.images.filter((img) => img !== fileName),
+          set: product.images.filter((img) => img !== fileId),
         },
         imageUrls: {
-          set: product.imageUrls.filter((img) => img !== imageUrl),
+          set: product.imageUrls.filter((img) => img !== url),
         },
       },
     });

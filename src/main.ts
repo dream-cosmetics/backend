@@ -1,10 +1,10 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
-import { DocumentBuilder, OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
-import * as yaml from 'yaml';
-import * as path from 'path';
-import * as fs from 'fs';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+// import * as yaml from 'yaml';
+// import * as path from 'path';
+// import * as fs from 'fs';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

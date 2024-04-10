@@ -8,6 +8,7 @@ import { FileModule } from './file/file.module';
 import { FileService } from './file/file.service';
 import { CategoryModule } from './category/category.module';
 import { UserModule } from './user/user.module';
+import { ImagekitModule } from './imagekit/imagekit.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { UserModule } from './user/user.module';
     FileModule,
     CategoryModule,
     UserModule,
+    ImagekitModule,
   ],
   controllers: [],
   providers: [PrismaService, FileService],
