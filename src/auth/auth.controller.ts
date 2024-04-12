@@ -55,7 +55,7 @@ export class AuthController {
     type: TokenDto,
   })
   @HttpCode(HttpStatus.OK)
-  @Post('/activate')
+  @Post('/confirm-email')
   validate(@Body() tokenDto: TokenDto) {
     return this.authService.confirmEmail(tokenDto.token);
   }

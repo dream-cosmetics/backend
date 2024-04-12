@@ -10,6 +10,7 @@ import { CategoryModule } from './category/category.module';
 import { UserModule } from './user/user.module';
 import { ImagekitModule } from './imagekit/imagekit.module';
 import { AuthModule } from './auth/auth.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { AuthModule } from './auth/auth.module';
     UserModule,
     ImagekitModule,
     AuthModule,
+    MailModule,
   ],
   controllers: [],
   providers: [PrismaService, FileService],

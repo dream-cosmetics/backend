@@ -4,17 +4,24 @@ import { SignUpDto } from './dto/sign-up.dto';
 import { $Enums, Prisma } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
-    private readonly configService: ConfigService,
+    private readonly mailService: MailService,
   ) {}
   async signUp(signUpDto: SignUpDto) {
     const user = await this.userService.create(signUpDto);
-    return this.generateToken(user);
+    const token = await this.generateToken(user);
+    await this.mailService.sendUserConfirmationEmail(
+      user.email,
+      user.firstName,
+      token.access_token,
+    );
+    return token;
   }
 
   async login(email: string, password: string) {
@@ -25,14 +32,6 @@ export class AuthService {
 
   async getUserInfo(id: number) {
     return this.userService.findOne(id);
-  }
-
-  private async generateConfirmEmail(user: SignUpDto, token: string) {
-    const frontendUrl = this.configService.get<string>('FRONTEND_URL');
-    const url = `${frontendUrl}/auth/confirm-email?token=${token}`;
-    console.log(url);
-
-    //TODO: add email service to send email to user
   }
 
   private async generateToken(
