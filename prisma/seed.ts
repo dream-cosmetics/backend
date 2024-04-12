@@ -18,6 +18,7 @@ async function main() {
         lastName: 'Admin',
         phone: '1234567890',
         password: hashedPassword,
+        status: $Enums.Status.ACTIVE,
         role: $Enums.Role.ADMIN,
       },
     });
