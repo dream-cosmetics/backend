@@ -9,7 +9,7 @@ import {
   IsString,
 } from 'class-validator';
 
-export class CreateUserDto implements Prisma.UserCreateInput {
+export class SignUpDto implements Prisma.UserCreateInput {
   @ApiProperty({
     name: 'firstName',
     type: String,
@@ -60,13 +60,13 @@ export class CreateUserDto implements Prisma.UserCreateInput {
   @IsString()
   password: string;
 
-  @ApiProperty({
-    name: 'role',
-    type: String,
-    description: 'User role, either ADMIN or USER. Defaults to USER',
-    example: 'USER',
-  })
-  @IsIn(['ADMIN', 'USER'])
+  // @ApiProperty({
+  //   name: 'Status',
+  //   type: String,
+  //   description: 'User status',
+  //   example: 'PENDING',
+  // })
+  @IsIn(['USER', 'ADMIN'])
   @IsOptional()
   @IsEnum($Enums.Role)
   role: $Enums.Role;

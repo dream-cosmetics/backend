@@ -45,10 +45,15 @@ export class UserService {
     return user;
   }
 
-  private async findByEmail(email: string) {
-    return this.prismaService.user.findUnique({
+  async findByEmailOrThrowError(email: string) {
+    const user = await this.prismaService.user.findUnique({
       where: { email },
     });
+
+    if (!user) {
+      throw new BadRequestException(`User with email:${email} not found`);
+    }
+    return user;
   }
 
   async findOne(id: number) {
@@ -73,7 +78,7 @@ export class UserService {
   }
 
   async validateUser(email: string, password: string) {
-    const user = await this.findByEmail(email);
+    const user = await this.findByEmailOrThrowError(email);
     if (user && (await compare(password, user.password))) {
       return user;
     }

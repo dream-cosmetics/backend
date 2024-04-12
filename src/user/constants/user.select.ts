@@ -4,4 +4,5 @@ export const userSelect = {
   lastName: true,
   email: true,
   phone: true,
+  status: true,
 };
