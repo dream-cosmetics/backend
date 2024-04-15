@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
 import { ConfigModule } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
@@ -10,6 +10,8 @@ import { CategoryModule } from './category/category.module';
 import { UserModule } from './user/user.module';
 import { ImagekitModule } from './imagekit/imagekit.module';
 import { AuthModule } from './auth/auth.module';
+import { MailModule } from './mail/mail.module';
+import { MorganMiddleware } from './middleware/logger.middleware';
 
 @Module({
   imports: [
@@ -27,9 +29,14 @@ import { AuthModule } from './auth/auth.module';
     UserModule,
     ImagekitModule,
     AuthModule,
+    MailModule,
   ],
   controllers: [],
   providers: [PrismaService, FileService],
   exports: [PrismaService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(MorganMiddleware).forRoutes('*');
+  }
+}

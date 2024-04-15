@@ -1,20 +1,27 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import { SignUpDto } from './dto/sign-up.dto';
 import { $Enums, Prisma } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
+import { MailService } from 'src/mail/mail.service';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
-    private readonly configService: ConfigService,
+    private readonly mailService: MailService,
   ) {}
   async signUp(signUpDto: SignUpDto) {
     const user = await this.userService.create(signUpDto);
-    return this.generateToken(user);
+    const token = await this.generateToken(user);
+    await this.mailService.sendUserConfirmationEmail(
+      user.email,
+      user.firstName,
+      token.access_token,
+    );
+    return token;
   }
 
   async login(email: string, password: string) {
@@ -27,12 +34,41 @@ export class AuthService {
     return this.userService.findOne(id);
   }
 
-  private async generateConfirmEmail(user: SignUpDto, token: string) {
-    const frontendUrl = this.configService.get<string>('FRONTEND_URL');
-    const url = `${frontendUrl}/auth/confirm-email?token=${token}`;
-    console.log(url);
+  async confirmEmail(token: string) {
+    const email = await this.decodeToken(token);
+    const user = await this.userService.findByEmailOrThrowError(email);
 
-    //TODO: add email service to send email to user
+    if (user.status === $Enums.Status.ACTIVE) {
+      throw new BadRequestException('User already activated');
+    }
+
+    if (user.status === $Enums.Status.PENDING) {
+      await this.userService.update(user.id, { status: $Enums.Status.ACTIVE });
+    }
+    return { message: 'User activated' };
+  }
+
+  async forgotPassword(email: string) {
+    const user = await this.userService.findByEmailOrThrowError(email);
+    const token = await this.generateToken(user);
+    await this.mailService.sendPasswordResetEmail(
+      user.email,
+      user.firstName,
+      token.access_token,
+    );
+    return {
+      message: 'Password reset email sent',
+    };
+  }
+
+  async resetPassword(resetPasswordDto: ResetPasswordDto) {
+    const userEmail = await this.decodeToken(resetPasswordDto.token);
+    const user = await this.userService.findByEmailOrThrowError(userEmail);
+
+    await this.userService.update(user.id, {
+      password: await this.userService.hashPassword(resetPasswordDto.password),
+    });
+    return { message: 'Password reset' };
   }
 
   private async generateToken(
@@ -45,20 +81,6 @@ export class AuthService {
     return {
       access_token: await this.jwtService.signAsync(payload),
     };
-  }
-
-  public async confirmEmail(token: string) {
-    const email = await this.decodeToken(token);
-    const user = await this.userService.findByEmailOrThrowError(email);
-
-    if (user.status === $Enums.Status.ACTIVE) {
-      throw new BadRequestException('User already activated');
-    }
-
-    if (user.status === $Enums.Status.PENDING) {
-      await this.userService.update(user.id, { status: $Enums.Status.ACTIVE });
-    }
-    return 'User activated';
   }
 
   private async decodeToken(token: string) {

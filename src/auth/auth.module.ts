@@ -7,11 +7,13 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { jwtConfig } from 'src/config/jwt.config';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './strategy/passport.strategy';
+import { MailModule } from 'src/mail/mail.module';
 
 @Global()
 @Module({
   imports: [
     UserModule,
+    MailModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

@@ -16,6 +16,8 @@ import { GetUser } from './decorators/get-user.decorator';
 import Roles from './decorators/role.decorator';
 import { JwtRoleGuard } from './guards/jwt-role.guard';
 import { User } from '@prisma/client';
+import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ForgotPassworDto } from './dto/forgot-password.dto';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -55,7 +57,7 @@ export class AuthController {
     type: TokenDto,
   })
   @HttpCode(HttpStatus.OK)
-  @Post('/activate')
+  @Post('/confirm-email')
   validate(@Body() tokenDto: TokenDto) {
     return this.authService.confirmEmail(tokenDto.token);
   }
@@ -70,5 +72,29 @@ export class AuthController {
   @Get('/me')
   getUserInfo(@GetUser() user: User) {
     return this.authService.getUserInfo(user.id);
+  }
+
+  @ApiResponse({
+    status: 200,
+    description: 'Password reset email sent',
+  })
+  @ApiBody({
+    type: ForgotPassworDto,
+  })
+  @Post('/forgot-password')
+  forgotPassword(@Body() forgotPasswordDto: ForgotPassworDto) {
+    return this.authService.forgotPassword(forgotPasswordDto.email);
+  }
+
+  @ApiResponse({
+    status: 200,
+    description: 'Password reset',
+  })
+  @ApiBody({
+    type: ResetPasswordDto,
+  })
+  @Post('/reset-password')
+  resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    return this.authService.resetPassword(resetPasswordDto);
   }
 }
