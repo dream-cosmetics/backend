@@ -4,6 +4,7 @@ import { SignUpDto } from './dto/sign-up.dto';
 import { $Enums, Prisma } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
 import { MailService } from 'src/mail/mail.service';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -33,19 +34,7 @@ export class AuthService {
     return this.userService.findOne(id);
   }
 
-  private async generateToken(
-    user: Prisma.UserGetPayload<{ select: { id: true; email: true } }>,
-  ) {
-    const payload = {
-      id: user.id,
-      email: user.email,
-    };
-    return {
-      access_token: await this.jwtService.signAsync(payload),
-    };
-  }
-
-  public async confirmEmail(token: string) {
+  async confirmEmail(token: string) {
     const email = await this.decodeToken(token);
     const user = await this.userService.findByEmailOrThrowError(email);
 
@@ -56,7 +45,42 @@ export class AuthService {
     if (user.status === $Enums.Status.PENDING) {
       await this.userService.update(user.id, { status: $Enums.Status.ACTIVE });
     }
-    return 'User activated';
+    return { message: 'User activated' };
+  }
+
+  async forgotPassword(email: string) {
+    const user = await this.userService.findByEmailOrThrowError(email);
+    const token = await this.generateToken(user);
+    await this.mailService.sendPasswordResetEmail(
+      user.email,
+      user.firstName,
+      token.access_token,
+    );
+    return {
+      message: 'Password reset email sent',
+    };
+  }
+
+  async resetPassword(resetPasswordDto: ResetPasswordDto) {
+    const userEmail = await this.decodeToken(resetPasswordDto.token);
+    const user = await this.userService.findByEmailOrThrowError(userEmail);
+
+    await this.userService.update(user.id, {
+      password: await this.userService.hashPassword(resetPasswordDto.password),
+    });
+    return { message: 'Password reset' };
+  }
+
+  private async generateToken(
+    user: Prisma.UserGetPayload<{ select: { id: true; email: true } }>,
+  ) {
+    const payload = {
+      id: user.id,
+      email: user.email,
+    };
+    return {
+      access_token: await this.jwtService.signAsync(payload),
+    };
   }
 
   private async decodeToken(token: string) {

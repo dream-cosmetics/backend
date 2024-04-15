@@ -9,12 +9,11 @@ import { userSelect } from './constants/user.select';
 export class UserService {
   constructor(private readonly prismaService: PrismaService) {}
   async create(createUserDto: CreateUserDto) {
-    const salt = await genSalt();
     try {
       const user = await this.prismaService.user.create({
         data: {
           ...createUserDto,
-          password: await hash(createUserDto.password, salt),
+          password: await this.hashPassword(createUserDto.password),
         },
         select: userSelect,
       });
@@ -83,5 +82,10 @@ export class UserService {
       return user;
     }
     throw new BadRequestException('Invalid credentials');
+  }
+
+  async hashPassword(password: string) {
+    const salt = await genSalt();
+    return hash(password, salt);
   }
 }
