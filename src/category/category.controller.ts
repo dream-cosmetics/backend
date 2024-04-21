@@ -46,7 +46,7 @@ export class CategoryController {
   })
   @Get(':id')
   getCategoryById(@Param('id') id: number) {
-    return this.categoryService.getCategoryById(id);
+    return this.categoryService.getCategoryByIdOrThrow(id);
   }
 
   @ApiParam({
