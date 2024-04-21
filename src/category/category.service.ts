@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { PrismaService } from '../prisma.service';
@@ -12,6 +12,9 @@ export class CategoryService {
     try {
       return await this.prisma.category.create({ data });
     } catch (e) {
+      if (e.code === 'P2002') {
+        throw new BadRequestException('Category already exists');
+      }
       throw new Error(`Error: creating category failed.Reason:${e}`);
     }
   }
@@ -24,51 +27,43 @@ export class CategoryService {
     }
   }
 
-  async getCategoryById(categoryId: number): Promise<Category> {
-    try {
-      return await this.prisma.category.findUnique({
-        where: {
-          id: categoryId,
-        },
-      });
-    } catch (e) {
-      throw new Error(
-        `Error: getting category with id:${categoryId} failed. Reason:${e}`,
-      );
+  async getCategoryByIdOrThrow(categoryId: number): Promise<Category> {
+    const category = await this.prisma.category.findUnique({
+      where: {
+        id: categoryId,
+      },
+    });
+    if (!category) {
+      throw new BadRequestException(`Category with id:${categoryId} not found`);
     }
+    return category;
   }
 
   async updateCategory(
     categoryId: number,
     data: UpdateCategoryDto,
-  ): Promise<string> {
-    try {
-      await this.prisma.category.update({
-        where: {
-          id: categoryId,
-        },
-        data,
-      });
-      return `Category with id:${categoryId} updated successfully`;
-    } catch (e) {
-      throw new Error(
-        `Error: updating category with id:${categoryId} failed.Reason:${e}`,
-      );
-    }
+  ): Promise<Category> {
+    const category = await this.getCategoryByIdOrThrow(categoryId);
+    return await this.prisma.category.update({
+      where: {
+        id: category.id,
+      },
+      data: {
+        ...data,
+      },
+    });
   }
 
-  async removeCategory(categoryId: number): Promise<string> {
-    try {
-      await this.prisma.category.delete({
-        where: {
-          id: categoryId,
-        },
-      });
-      return `Category with id:${categoryId} deleted successfully`;
-    } catch (e) {
-      throw new Error(
-        `Error: deleting category with id:${categoryId} failed. Reason:${e}`,
-      );
-    }
+  async removeCategory(categoryId: number) {
+    const category = await this.getCategoryByIdOrThrow(categoryId);
+    await this.prisma.category.delete({
+      where: {
+        id: category.id,
+      },
+    });
+
+    return {
+      message: `Category with id:${categoryId} deleted successfully`,
+    };
   }
 }

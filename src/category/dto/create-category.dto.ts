@@ -6,6 +6,7 @@ export class CreateCategoryDto {
     example: 'Beauty',
     description: 'Name of the category',
     required: true,
+    type: String,
   })
   @IsNotEmpty()
   @IsString()
