@@ -91,8 +91,9 @@ export class CreateProductDto {
   @IsOptional()
   productFeatures?: string;
 
-  @ApiProperty({ example: '1', description: 'Category id', required: true })
-  @IsNotEmpty()
+  @ApiProperty({ example: '1', description: 'Category id', required: false })
+  // @IsNotEmpty()
+  @IsOptional()
   @IsNumber()
   @IsPositive()
   categoryId: number;
